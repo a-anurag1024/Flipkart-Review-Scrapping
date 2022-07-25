@@ -68,4 +68,20 @@ class Scrapper_Class:
             logs.log_error("Error in cancelling the login popup:", str(e))
             raise Exception("Error in cancelling the login popup: \n", str(e))
 
+    def product_search(self, searchString):
+        """
+        Function to search the given product in the Flipkart webpage through the webdriver
+        :param searchString: product to be searched
+        :return: None
+        """
+        try:
+            loc = locator()
+            self.locate_Xpath(loc.loc_search_field()).send_keys(searchString)
+            self.locate_Xpath(loc.loc_search_button()).click()
+        except Exception as e:
+            logs.log_error('Error in typing in the search bar of the Flipkart homepage: ', str(e))
+            raise Exception('Error in typing in the search bar of the Flipkart homepage: ' + str(e))
+
+
+
 

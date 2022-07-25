@@ -35,5 +35,6 @@ def index():
             logs.log_info('The Flipkart home page has been hit.')
             scrapper.login_popup_cross()
             logs.log_info('The login popup cancelled.')
+            scrapper.product_search(searchString)   # to search the product in the webdriver which opens up the results page
         except Exception as e:
             pass
