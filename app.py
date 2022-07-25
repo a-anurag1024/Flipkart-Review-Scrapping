@@ -30,7 +30,10 @@ def index():
             expected_review = 10
             logs.log_info("Taken dummy values for searchString and expected_review")
         try:
-            scrapper = Scrapper_Class(service = FirefoxService(GeckoDriverManager().install()))
-
+            scrapper = Scrapper_Class(FirefoxService(GeckoDriverManager().install()))
+            scrapper.open_url("https://www.flipkart.com/")
+            logs.log_info('The Flipkart home page has been hit.')
+            scrapper.login_popup_cross()
+            logs.log_info('The login popup cancelled.')
         except Exception as e:
             pass
