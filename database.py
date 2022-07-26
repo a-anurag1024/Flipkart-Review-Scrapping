@@ -28,7 +28,7 @@ class cassandra_db:
         try:
             cloud_config = {'secure_connect_bundle': self.file_address}
             auth = PlainTextAuthProvider(self.id, self.secret)
-            cluster = Cluster(cloud=cloud_config, auth_provider=auth, protocol_version=4)
+            cluster = Cluster(cloud=cloud_config, auth_provider=auth, protocol_version=4, request_timeout=30)
             session = cluster.connect()
             self.session = session
             logs.log_info("The connection to the cassandra driver has been established !!")
