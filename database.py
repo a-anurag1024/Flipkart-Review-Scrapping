@@ -1,6 +1,8 @@
 from cassandra.cluster import Cluster
 from cassandra.auth import PlainTextAuthProvider
+from cassandra.query import BatchStatement
 import logger
+import pandas as pd
 
 logs = logger.my_logs('database.py')
 
@@ -28,8 +30,9 @@ class cassandra_db:
         try:
             cloud_config = {'secure_connect_bundle': self.file_address}
             auth = PlainTextAuthProvider(self.id, self.secret)
-            cluster = Cluster(cloud=cloud_config, auth_provider=auth, protocol_version=4, request_timeout=30)
+            cluster = Cluster(cloud=cloud_config, auth_provider=auth, protocol_version=4)
             session = cluster.connect()
+            session.default_timeout = 60
             self.session = session
             logs.log_info("The connection to the cassandra driver has been established !!")
         except Exception as e:
@@ -143,7 +146,8 @@ class cassandra_db:
                 self.drop_table(table_list[0])
             query = "CREATE TABLE " + tname.strip() + " (" + columns + " );"
             self.session.execute(query)
-            logs.log_info("Table {} created with attributes {}. Setting the current table to {}...".format(tname, columns, tname))
+            logs.log_info(
+                "Table {} created with attributes {}. Setting the current table to {}...".format(tname, columns, tname))
             self.table = tname
         except Exception as e:
             logs.log_error("Error in creating table {}".format(tname), str(e))
@@ -159,3 +163,83 @@ class cassandra_db:
                 "The table has not been selected yet. Select the table using establish_table() function.")
             raise Exception(
                 "The table has not been selected yet. Select the table using establish_table() function.")
+
+    def get_col_names(self):
+        """
+        Function to get the column names of the selected table.
+        :return: list of column names
+        """
+        query = "select column_name from system_schema.columns where keyspace_name = '{}' AND table_name = '{}' ALLOW FILTERING".format(
+            self.keyspace, self.table)
+        rows = self.session.execute(query)
+        return [i[0] for i in rows]
+
+    def add_single_data(self, values):
+        """
+        Function to add a singe data instance.
+        :param values: Values to be updated along with thier column name in a dictionary
+        :return: None
+        """
+        try:
+            logs.log_info("Begin to add single data instance to the table {}.{}".format(self.keyspace, self.table))
+            col_names = self.get_col_names()
+            if not all(i in col_names for i in list(values.keys())):
+                logs.log_warning("Invalid Column names passed.")
+                raise Exception("Invalid Column names passed")
+            col_format = ""
+            for i in values.keys():
+                col_format = col_format + i + ", "
+            val_format = str(values.values())[13:-2]
+            query = "Insert Into {}({}) VALUES ({});".format(self.table, col_format[:-2], val_format)
+            self.session.execute(query)
+            logs.log_info("Single data instance added to the table {}".format(self.table))
+        except Exception as e:
+            logs.log_error("Error in single entry to the table: ", str(e))
+            raise Exception("Error in single entry to the table: \n" + str(e))
+
+    def add_batch_data(self, df):
+        """
+        Function to add multiple records at once from the supplied dataframe.
+        :pram df: batch data in pandas dataframe format
+        :return: None
+        """
+        try:
+            logs.log_info("Begin to add batch data instances to the table {}.{}".format(self.keyspace, self.table))
+            col_names = self.get_col_names()
+            if not all(i in col_names for i in list(df.columns)):
+                logs.log_warning("Invalid Column names passed.")
+                raise Exception("Invalid Column names passed")
+            col_format = ""
+            for i in df.columns:
+                col_format = col_format + i + ", "
+            query = "insert into {}({}) VALUES (".format(self.table, col_format[:-2]) + ('%s, '*len(df.columns))[:-2] +" );"
+            batch = BatchStatement()
+            for i in range(len(df)):
+                batch.add(query, [j for j in df.iloc[i]])
+            self.session.execute(batch)
+            logs.log_info("Batch data records added to the table {}".format(self.table))
+        except Exception as e:
+            logs.log_error("Error in loading Batch data records: ", str(e))
+            raise Exception("Error in loading Batch data records: \n" + str(e))
+
+    def read_table(self, query):
+        """
+        Function to execute Read operation (select operation) on the selected table and return the result
+        :param query: select query in CQL
+        :return: pandas dataframe consisting the results
+        """
+        try:
+            self.check_null_connection()
+            self.check_null_keyspace()
+            self.check_null_table()
+            rows = self.session.execute(str(query))
+            col = rows.column_names
+            col_typ = rows.column_types
+            df = pd.DataFrame(columns = col)
+            for i in rows:
+                df.loc[len(df)] = [i[j] for j in range(len(col))]
+            logs.log_info("Returned search result for CQL query: "+query)
+            return df
+        except Exception as e:
+            logs.log_error("Error in reading the table with the given CQL query.", str(e))
+            raise Exception("Error in reading the table with the given CQL query." + str(e))

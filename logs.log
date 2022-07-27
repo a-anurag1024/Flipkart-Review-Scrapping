@@ -1,14 +1,124 @@
-2022-07-27 01:11:46,310 : database.py : INFO : The connection to the cassandra driver has been established !!
-2022-07-27 01:12:01,390 : database.py : INFO : Establishing keyspace...
-2022-07-27 01:12:01,768 : database.py : INFO : The keyspace reviews selected to be used.
-2022-07-27 01:12:48,393 : database.py : INFO : Table new_table already exists. Setting the current table to new_table...
-2022-07-27 01:13:22,012 : database.py : INFO : Table new_table1 deleted/does not exists from the keyspace reviews
-2022-07-27 01:13:40,239 : database.py : ERROR : Error in deleting the table new_table:
+2022-07-27 18:57:51,553 : database.py : WARNING : The connection has not been established yet. Creating the connection by calling connect_db()...
+2022-07-27 18:57:51,554 : database.py : ERROR : Error in connecting to the cassandra database:
  Exact Error: 
-errors={'c8a85932-3577-4d27-96ba-1b148c0ae79d-europe-west1.db.astra.datastax.com:29042:a837fe38-9fd5-49a6-958e-7f7ca71ae890': 'Client request timeout. See Session.execute[_async](timeout)'}, last_host=c8a85932-3577-4d27-96ba-1b148c0ae79d-europe-west1.db.astra.datastax.com:29042:a837fe38-9fd5-49a6-958e-7f7ca71ae890
+__init__() got an unexpected keyword argument 'request_timeout'
 Traceback (most recent call last):
-  File "/Users/adityaanuragdash/PycharmProjects/Flipkart_Review_Scrapping/database.py", line 117, in drop_table
+  File "/Users/adityaanuragdash/PycharmProjects/Flipkart_Review_Scrapping/database.py", line 33, in connect_db
+    cluster = Cluster(cloud=cloud_config, auth_provider=auth, protocol_version=4, request_timeout=30)
+  File "cassandra/cluster.py", line 1067, in cassandra.cluster.Cluster.__init__
+TypeError: __init__() got an unexpected keyword argument 'request_timeout'
+2022-07-27 18:57:51,555 : database.py : ERROR : Error in searching the keyspace: 
+ Exact Error: 
+Error in connecting to the cassandra database:
+__init__() got an unexpected keyword argument 'request_timeout'
+Traceback (most recent call last):
+  File "/Users/adityaanuragdash/PycharmProjects/Flipkart_Review_Scrapping/database.py", line 33, in connect_db
+    cluster = Cluster(cloud=cloud_config, auth_provider=auth, protocol_version=4, request_timeout=30)
+  File "cassandra/cluster.py", line 1067, in cassandra.cluster.Cluster.__init__
+TypeError: __init__() got an unexpected keyword argument 'request_timeout'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/Users/adityaanuragdash/PycharmProjects/Flipkart_Review_Scrapping/database.py", line 58, in establish_keyspace
+    self.check_null_connection()
+  File "/Users/adityaanuragdash/PycharmProjects/Flipkart_Review_Scrapping/database.py", line 49, in check_null_connection
+    self.connect_db()
+  File "/Users/adityaanuragdash/PycharmProjects/Flipkart_Review_Scrapping/database.py", line 39, in connect_db
+    raise Exception('Error in connecting to the cassandra database:\n' + str(e))
+Exception: Error in connecting to the cassandra database:
+__init__() got an unexpected keyword argument 'request_timeout'
+2022-07-27 19:01:51,198 : database.py : ERROR : Error in connecting to the cassandra database:
+ Exact Error: 
+__init__() got an unexpected keyword argument 'request_timeout'
+Traceback (most recent call last):
+  File "/Users/adityaanuragdash/PycharmProjects/Flipkart_Review_Scrapping/database.py", line 33, in connect_db
+    cluster = Cluster(cloud=cloud_config, auth_provider=auth, protocol_version=4, request_timeout=30)
+  File "cassandra/cluster.py", line 1067, in cassandra.cluster.Cluster.__init__
+TypeError: __init__() got an unexpected keyword argument 'request_timeout'
+2022-07-27 19:04:37,640 : database.py : INFO : The connection to the cassandra driver has been established !!
+2022-07-27 19:07:03,975 : database.py : WARNING : The connection has not been established yet. Creating the connection by calling connect_db()...
+2022-07-27 19:10:33,404 : database.py : ERROR : Error in single entry to the table: 
+ Exact Error: 
+<Error from server: code=2000 [Syntax error in CQL query] message="line 1:32 no viable alternative at input ')' (...Into new_table(id, name, [)]...)">
+Traceback (most recent call last):
+  File "/Users/adityaanuragdash/PycharmProjects/Flipkart_Review_Scrapping/database.py", line 194, in add_single_data
     self.session.execute(query)
   File "cassandra/cluster.py", line 2618, in cassandra.cluster.Session.execute
   File "cassandra/cluster.py", line 4894, in cassandra.cluster.ResponseFuture.result
-cassandra.OperationTimedOut: errors={'c8a85932-3577-4d27-96ba-1b148c0ae79d-europe-west1.db.astra.datastax.com:29042:a837fe38-9fd5-49a6-958e-7f7ca71ae890': 'Client request timeout. See Session.execute[_async](timeout)'}, last_host=c8a85932-3577-4d27-96ba-1b148c0ae79d-europe-west1.db.astra.datastax.com:29042:a837fe38-9fd5-49a6-958e-7f7ca71ae890
+cassandra.protocol.SyntaxException: <Error from server: code=2000 [Syntax error in CQL query] message="line 1:32 no viable alternative at input ')' (...Into new_table(id, name, [)]...)">
+2022-07-27 19:24:18,584 : cassandra.connection : WARNING : Heartbeat failed for connection (140510408252992) to c8a85932-3577-4d27-96ba-1b148c0ae79d-europe-west1.db.astra.datastax.com:29042:c266ef58-d206-4b55-b00d-0d2dc2058015
+2022-07-27 19:24:18,585 : cassandra.connection : WARNING : Heartbeat failed for connection (140510408259184) to c8a85932-3577-4d27-96ba-1b148c0ae79d-europe-west1.db.astra.datastax.com:29042:a837fe38-9fd5-49a6-958e-7f7ca71ae890
+2022-07-27 19:24:18,768 : cassandra.connection : WARNING : Heartbeat failed for connection (140510408249008) to c8a85932-3577-4d27-96ba-1b148c0ae79d-europe-west1.db.astra.datastax.com:29042:c89ed09d-8b2d-41bc-86ad-ad709d3da36a
+2022-07-27 19:24:18,768 : cassandra.connection : WARNING : Heartbeat failed for connection (140510407776464) to c8a85932-3577-4d27-96ba-1b148c0ae79d-europe-west1.db.astra.datastax.com:29042:a837fe38-9fd5-49a6-958e-7f7ca71ae890
+2022-07-27 19:24:18,780 : cassandra.cluster : WARNING : Host c8a85932-3577-4d27-96ba-1b148c0ae79d-europe-west1.db.astra.datastax.com:29042:c266ef58-d206-4b55-b00d-0d2dc2058015 has been marked down
+2022-07-27 19:24:18,782 : cassandra.cluster : WARNING : Host c8a85932-3577-4d27-96ba-1b148c0ae79d-europe-west1.db.astra.datastax.com:29042:a837fe38-9fd5-49a6-958e-7f7ca71ae890 has been marked down
+2022-07-27 19:24:18,783 : cassandra.cluster : WARNING : Host c8a85932-3577-4d27-96ba-1b148c0ae79d-europe-west1.db.astra.datastax.com:29042:c89ed09d-8b2d-41bc-86ad-ad709d3da36a has been marked down
+2022-07-27 19:27:25,717 : database.py : WARNING : The connection has not been established yet. Creating the connection by calling connect_db()...
+2022-07-27 19:32:46,250 : database.py : WARNING : Invalid Column names passed.
+2022-07-27 19:32:46,252 : database.py : ERROR : Error in loading Batch data records: 
+ Exact Error: 
+Invalid Column names passed
+Traceback (most recent call last):
+  File "/Users/adityaanuragdash/PycharmProjects/Flipkart_Review_Scrapping/database.py", line 211, in add_batch_data
+    raise Exception("Invalid Column names passed")
+Exception: Invalid Column names passed
+2022-07-27 19:35:46,472 : database.py : WARNING : Invalid Column names passed.
+2022-07-27 19:35:46,474 : database.py : ERROR : Error in loading Batch data records: 
+ Exact Error: 
+Invalid Column names passed
+Traceback (most recent call last):
+  File "/Users/adityaanuragdash/PycharmProjects/Flipkart_Review_Scrapping/database.py", line 211, in add_batch_data
+    raise Exception("Invalid Column names passed")
+Exception: Invalid Column names passed
+2022-07-27 19:37:31,297 : database.py : ERROR : Error in loading Batch data records: 
+ Exact Error: 
+'int' object is not iterable
+Traceback (most recent call last):
+  File "/Users/adityaanuragdash/PycharmProjects/Flipkart_Review_Scrapping/database.py", line 217, in add_batch_data
+    for i in len(df):
+TypeError: 'int' object is not iterable
+2022-07-27 19:47:28,127 : database.py : ERROR : Error in loading Batch data records: 
+ Exact Error: 
+'int' object is not iterable
+Traceback (most recent call last):
+  File "/Users/adityaanuragdash/PycharmProjects/Flipkart_Review_Scrapping/database.py", line 217, in add_batch_data
+    for i in range(len(df)):
+TypeError: 'int' object is not iterable
+2022-07-27 19:48:32,994 : database.py : WARNING : The connection has not been established yet. Creating the connection by calling connect_db()...
+2022-07-27 19:48:38,644 : database.py : WARNING : Keyspace review not found !!
+2022-07-27 19:48:38,645 : database.py : ERROR : Error in searching the keyspace: 
+ Exact Error: 
+Keyspace review not found !!
+To create the keyspace review, use the UI of DataStax Cassandra website. Creating the keyspace from commandline is giving issues.
+Traceback (most recent call last):
+  File "/Users/adityaanuragdash/PycharmProjects/Flipkart_Review_Scrapping/database.py", line 74, in establish_keyspace
+    raise Exception("Keyspace {} not found !!".format(ksname) +
+Exception: Keyspace review not found !!
+To create the keyspace review, use the UI of DataStax Cassandra website. Creating the keyspace from commandline is giving issues.
+2022-07-27 19:49:15,153 : database.py : ERROR : Error in loading Batch data records: 
+ Exact Error: 
+not enough arguments for format string
+Traceback (most recent call last):
+  File "/Users/adityaanuragdash/PycharmProjects/Flipkart_Review_Scrapping/database.py", line 218, in add_batch_data
+    batch.add(query, [j for j in df.iloc[i]])
+  File "cassandra/query.py", line 810, in cassandra.query.BatchStatement.add
+  File "cassandra/query.py", line 896, in cassandra.query.bind_params
+TypeError: not enough arguments for format string
+2022-07-27 19:53:48,024 : database.py : WARNING : The connection has not been established yet. Creating the connection by calling connect_db()...
+2022-07-27 20:12:39,755 : cassandra.connection : WARNING : Heartbeat failed for connection (140463292661664) to c8a85932-3577-4d27-96ba-1b148c0ae79d-europe-west1.db.astra.datastax.com:29042:a837fe38-9fd5-49a6-958e-7f7ca71ae890
+2022-07-27 20:12:39,763 : cassandra.connection : WARNING : Heartbeat failed for connection (140463292810144) to c8a85932-3577-4d27-96ba-1b148c0ae79d-europe-west1.db.astra.datastax.com:29042:c266ef58-d206-4b55-b00d-0d2dc2058015
+2022-07-27 20:12:39,763 : cassandra.connection : WARNING : Heartbeat failed for connection (140463292660896) to c8a85932-3577-4d27-96ba-1b148c0ae79d-europe-west1.db.astra.datastax.com:29042:c89ed09d-8b2d-41bc-86ad-ad709d3da36a
+2022-07-27 20:17:58,217 : cassandra.connection : WARNING : Heartbeat failed for connection (140463292303248) to c8a85932-3577-4d27-96ba-1b148c0ae79d-europe-west1.db.astra.datastax.com:29042:c266ef58-d206-4b55-b00d-0d2dc2058015
+2022-07-27 20:17:58,219 : cassandra.cluster : WARNING : Host c8a85932-3577-4d27-96ba-1b148c0ae79d-europe-west1.db.astra.datastax.com:29042:a837fe38-9fd5-49a6-958e-7f7ca71ae890 has been marked down
+2022-07-27 20:17:58,220 : cassandra.cluster : WARNING : Host c8a85932-3577-4d27-96ba-1b148c0ae79d-europe-west1.db.astra.datastax.com:29042:c266ef58-d206-4b55-b00d-0d2dc2058015 has been marked down
+2022-07-27 20:17:58,221 : cassandra.cluster : WARNING : Host c8a85932-3577-4d27-96ba-1b148c0ae79d-europe-west1.db.astra.datastax.com:29042:c89ed09d-8b2d-41bc-86ad-ad709d3da36a has been marked down
+2022-07-27 20:18:07,499 : cassandra.connection : WARNING : Heartbeat failed for connection (140463294100864) to c8a85932-3577-4d27-96ba-1b148c0ae79d-europe-west1.db.astra.datastax.com:29042:a837fe38-9fd5-49a6-958e-7f7ca71ae890
+2022-07-27 20:18:17,565 : cassandra.connection : WARNING : Heartbeat failed for connection (140463013482352) to c8a85932-3577-4d27-96ba-1b148c0ae79d-europe-west1.db.astra.datastax.com:29042:a837fe38-9fd5-49a6-958e-7f7ca71ae890
+2022-07-27 20:18:17,566 : cassandra.connection : WARNING : Heartbeat failed for connection (140463013482880) to c8a85932-3577-4d27-96ba-1b148c0ae79d-europe-west1.db.astra.datastax.com:29042:c266ef58-d206-4b55-b00d-0d2dc2058015
+2022-07-27 20:18:17,566 : cassandra.connection : WARNING : Heartbeat failed for connection (140463013480432) to c8a85932-3577-4d27-96ba-1b148c0ae79d-europe-west1.db.astra.datastax.com:29042:c89ed09d-8b2d-41bc-86ad-ad709d3da36a
+2022-07-27 20:18:17,566 : cassandra.connection : WARNING : Heartbeat failed for connection (140463013238992) to c8a85932-3577-4d27-96ba-1b148c0ae79d-europe-west1.db.astra.datastax.com:29042:c266ef58-d206-4b55-b00d-0d2dc2058015
+2022-07-27 20:18:17,568 : cassandra.cluster : WARNING : Host c8a85932-3577-4d27-96ba-1b148c0ae79d-europe-west1.db.astra.datastax.com:29042:a837fe38-9fd5-49a6-958e-7f7ca71ae890 has been marked down
+2022-07-27 20:18:17,569 : cassandra.cluster : WARNING : Host c8a85932-3577-4d27-96ba-1b148c0ae79d-europe-west1.db.astra.datastax.com:29042:c266ef58-d206-4b55-b00d-0d2dc2058015 has been marked down
+2022-07-27 20:18:17,569 : cassandra.cluster : WARNING : Host c8a85932-3577-4d27-96ba-1b148c0ae79d-europe-west1.db.astra.datastax.com:29042:c89ed09d-8b2d-41bc-86ad-ad709d3da36a has been marked down
+2022-07-27 21:13:38,645 : database.py : WARNING : The connection has not been established yet. Creating the connection by calling connect_db()...
