@@ -122,3 +122,52 @@ TypeError: not enough arguments for format string
 2022-07-27 20:18:17,569 : cassandra.cluster : WARNING : Host c8a85932-3577-4d27-96ba-1b148c0ae79d-europe-west1.db.astra.datastax.com:29042:c266ef58-d206-4b55-b00d-0d2dc2058015 has been marked down
 2022-07-27 20:18:17,569 : cassandra.cluster : WARNING : Host c8a85932-3577-4d27-96ba-1b148c0ae79d-europe-west1.db.astra.datastax.com:29042:c89ed09d-8b2d-41bc-86ad-ad709d3da36a has been marked down
 2022-07-27 21:13:38,645 : database.py : WARNING : The connection has not been established yet. Creating the connection by calling connect_db()...
+2022-07-27 21:54:29,747 : database.py : WARNING : The connection has not been established yet. Creating the connection by calling connect_db()...
+2022-07-27 21:58:00,950 : database.py : ERROR : Error in updating the table: 
+ Exact Error: 
+'dict_keys' object is not subscriptable
+Traceback (most recent call last):
+  File "/Users/adityaanuragdash/PycharmProjects/Flipkart_Review_Scrapping/database.py", line 264, in update_table_values
+    update = update + str(values[i].keys()[j]) + "= " + str(values[i].values()[j]) + ", "
+TypeError: 'dict_keys' object is not subscriptable
+2022-07-27 22:02:25,338 : database.py : WARNING : The connection has not been established yet. Creating the connection by calling connect_db()...
+2022-07-27 22:02:49,016 : database.py : ERROR : Error in updating the table: 
+ Exact Error: 
+<Error from server: code=2000 [Syntax error in CQL query] message="line 1:45 no viable alternative at input 'id' (... reviews.new_table SET name= [natuWHERE] id...)">
+Traceback (most recent call last):
+  File "/Users/adityaanuragdash/PycharmProjects/Flipkart_Review_Scrapping/database.py", line 266, in update_table_values
+    self.session.execute(query)
+  File "cassandra/cluster.py", line 2618, in cassandra.cluster.Session.execute
+  File "cassandra/cluster.py", line 4894, in cassandra.cluster.ResponseFuture.result
+cassandra.protocol.SyntaxException: <Error from server: code=2000 [Syntax error in CQL query] message="line 1:45 no viable alternative at input 'id' (... reviews.new_table SET name= [natuWHERE] id...)">
+2022-07-27 22:06:23,997 : database.py : WARNING : The connection has not been established yet. Creating the connection by calling connect_db()...
+2022-07-27 22:07:12,142 : database.py : ERROR : Error in updating the table: 
+ Exact Error: 
+<Error from server: code=2000 [Syntax error in CQL query] message="line 1:40 no viable alternative at input 'WHERE' (... reviews.new_table SET name= [natu] WHERE...)">
+Traceback (most recent call last):
+  File "/Users/adityaanuragdash/PycharmProjects/Flipkart_Review_Scrapping/database.py", line 266, in update_table_values
+    self.session.execute(query)
+  File "cassandra/cluster.py", line 2618, in cassandra.cluster.Session.execute
+  File "cassandra/cluster.py", line 4894, in cassandra.cluster.ResponseFuture.result
+cassandra.protocol.SyntaxException: <Error from server: code=2000 [Syntax error in CQL query] message="line 1:40 no viable alternative at input 'WHERE' (... reviews.new_table SET name= [natu] WHERE...)">
+2022-07-27 22:08:58,924 : database.py : WARNING : The connection has not been established yet. Creating the connection by calling connect_db()...
+2022-07-27 22:09:30,102 : database.py : ERROR : Error in updating the table: 
+ Exact Error: 
+<Error from server: code=2000 [Syntax error in CQL query] message="line 1:40 no viable alternative at input 'WHERE' (... reviews.new_table SET name= [natu] WHERE...)">
+Traceback (most recent call last):
+  File "/Users/adityaanuragdash/PycharmProjects/Flipkart_Review_Scrapping/database.py", line 267, in update_table_values
+    self.session.execute(query)
+  File "cassandra/cluster.py", line 2618, in cassandra.cluster.Session.execute
+  File "cassandra/cluster.py", line 4894, in cassandra.cluster.ResponseFuture.result
+cassandra.protocol.SyntaxException: <Error from server: code=2000 [Syntax error in CQL query] message="line 1:40 no viable alternative at input 'WHERE' (... reviews.new_table SET name= [natu] WHERE...)">
+2022-07-27 22:33:14,776 : database.py : WARNING : The connection has not been established yet. Creating the connection by calling connect_db()...
+2022-07-27 22:33:57,201 : database.py : ERROR : Error in updating the table: 
+ Exact Error: 
+<Error from server: code=2000 [Syntax error in CQL query] message="line 1:56 mismatched input 'name' expecting EOF (...'natu' WHERE id = 10;[name]...)">
+Traceback (most recent call last):
+  File "/Users/adityaanuragdash/PycharmProjects/Flipkart_Review_Scrapping/database.py", line 268, in update_table_values
+    self.session.execute(query)
+  File "cassandra/cluster.py", line 2618, in cassandra.cluster.Session.execute
+  File "cassandra/cluster.py", line 4894, in cassandra.cluster.ResponseFuture.result
+cassandra.protocol.SyntaxException: <Error from server: code=2000 [Syntax error in CQL query] message="line 1:56 mismatched input 'name' expecting EOF (...'natu' WHERE id = 10;[name]...)">
+2022-07-27 22:35:25,741 : database.py : WARNING : The connection has not been established yet. Creating the connection by calling connect_db()...

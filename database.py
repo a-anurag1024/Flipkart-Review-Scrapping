@@ -14,9 +14,9 @@ class cassandra_db:
         """
         f = open('cassandra_credentials.txt')
         f.seek(0)
-        self.file_address = f.readline()[:-1]
-        self.id = f.readline()[:-1]
-        self.secret = f.readline()[:]
+        self._file_address = f.readline()[:-1]
+        self._id = f.readline()[:-1]
+        self.__secret = f.readline()[:]
         f.close()
         self.session = None
         self.table = None
@@ -28,8 +28,8 @@ class cassandra_db:
         :return: None
         """
         try:
-            cloud_config = {'secure_connect_bundle': self.file_address}
-            auth = PlainTextAuthProvider(self.id, self.secret)
+            cloud_config = {'secure_connect_bundle': self._file_address}
+            auth = PlainTextAuthProvider(self._id, self.__secret)
             cluster = Cluster(cloud=cloud_config, auth_provider=auth, protocol_version=4)
             session = cluster.connect()
             session.default_timeout = 60
@@ -212,7 +212,8 @@ class cassandra_db:
             col_format = ""
             for i in df.columns:
                 col_format = col_format + i + ", "
-            query = "insert into {}({}) VALUES (".format(self.table, col_format[:-2]) + ('%s, '*len(df.columns))[:-2] +" );"
+            query = "insert into {}({}) VALUES (".format(self.table, col_format[:-2]) + ('%s, ' * len(df.columns))[
+                                                                                        :-2] + " );"
             batch = BatchStatement()
             for i in range(len(df)):
                 batch.add(query, [j for j in df.iloc[i]])
@@ -234,12 +235,38 @@ class cassandra_db:
             self.check_null_table()
             rows = self.session.execute(str(query))
             col = rows.column_names
-            col_typ = rows.column_types
-            df = pd.DataFrame(columns = col)
+            df = pd.DataFrame(columns=col)
             for i in rows:
                 df.loc[len(df)] = [i[j] for j in range(len(col))]
-            logs.log_info("Returned search result for CQL query: "+query)
+            logs.log_info("Returned search result for CQL query: " + query)
             return df
         except Exception as e:
             logs.log_error("Error in reading the table with the given CQL query.", str(e))
             raise Exception("Error in reading the table with the given CQL query." + str(e))
+
+    def update_table_values(self, uid, values, primary_key):
+        """
+        Function to update the values of the records recognised by their unique ids
+        :param uid: values of the primary_key in list format
+        :param values: list of key value pair of the attributes and values to be updated corresponding to the uid
+        :param primary_key: column name of the primary_key
+        :return:None
+        """
+        try:
+            self.check_null_connection()
+            self.check_null_keyspace()
+            self.check_null_table()
+            l = len(uid)
+            for i in range(l):
+                query = "UPDATE {}.{} SET ".format(self.keyspace, self.table)
+                update = ""
+                for j in range(len(values[i].keys())):
+                    dval = ("'" + str(list(values[i].values())[j]) + "'") if (type(list(values[i].values())[j]) == str) else (str(list(values[i].values())[j]))
+                    update = update + str(list(values[i].keys())[j]) + "= " + dval + ", "
+                query = query + update[:-2] + " WHERE {} = {};".format(primary_key, uid[i])
+                self.session.execute(query)
+            logs.log_info("Updated the table {}".format(self.table))
+
+        except Exception as e:
+            logs.log_error("Error in updating the table: ", str(e))
+            raise Exception("Error in updating the table: ", str(e))
