@@ -171,3 +171,97 @@ Traceback (most recent call last):
   File "cassandra/cluster.py", line 4894, in cassandra.cluster.ResponseFuture.result
 cassandra.protocol.SyntaxException: <Error from server: code=2000 [Syntax error in CQL query] message="line 1:56 mismatched input 'name' expecting EOF (...'natu' WHERE id = 10;[name]...)">
 2022-07-27 22:35:25,741 : database.py : WARNING : The connection has not been established yet. Creating the connection by calling connect_db()...
+2022-07-27 23:10:58,029 : cassandra.connection : WARNING : Heartbeat failed for connection (140463015391344) to c8a85932-3577-4d27-96ba-1b148c0ae79d-europe-west1.db.astra.datastax.com:29042:c266ef58-d206-4b55-b00d-0d2dc2058015
+2022-07-27 23:10:59,394 : cassandra.connection : WARNING : Heartbeat failed for connection (140463293026784) to c8a85932-3577-4d27-96ba-1b148c0ae79d-europe-west1.db.astra.datastax.com:29042:c266ef58-d206-4b55-b00d-0d2dc2058015
+2022-07-27 23:10:59,484 : cassandra.connection : WARNING : Heartbeat failed for connection (140463016265232) to c8a85932-3577-4d27-96ba-1b148c0ae79d-europe-west1.db.astra.datastax.com:29042:a837fe38-9fd5-49a6-958e-7f7ca71ae890
+2022-07-27 23:10:59,496 : cassandra.connection : WARNING : Heartbeat failed for connection (140463571600000) to c8a85932-3577-4d27-96ba-1b148c0ae79d-europe-west1.db.astra.datastax.com:29042:c266ef58-d206-4b55-b00d-0d2dc2058015
+2022-07-27 23:10:59,496 : cassandra.connection : WARNING : Heartbeat failed for connection (140463016264656) to c8a85932-3577-4d27-96ba-1b148c0ae79d-europe-west1.db.astra.datastax.com:29042:c89ed09d-8b2d-41bc-86ad-ad709d3da36a
+2022-07-27 23:10:59,497 : cassandra.connection : WARNING : Heartbeat failed for connection (140463571396656) to c8a85932-3577-4d27-96ba-1b148c0ae79d-europe-west1.db.astra.datastax.com:29042:c266ef58-d206-4b55-b00d-0d2dc2058015
+2022-07-27 23:10:59,499 : cassandra.cluster : WARNING : Host c8a85932-3577-4d27-96ba-1b148c0ae79d-europe-west1.db.astra.datastax.com:29042:a837fe38-9fd5-49a6-958e-7f7ca71ae890 has been marked down
+2022-07-27 23:10:59,500 : cassandra.cluster : WARNING : Host c8a85932-3577-4d27-96ba-1b148c0ae79d-europe-west1.db.astra.datastax.com:29042:c266ef58-d206-4b55-b00d-0d2dc2058015 has been marked down
+2022-07-27 23:10:59,502 : cassandra.cluster : WARNING : Host c8a85932-3577-4d27-96ba-1b148c0ae79d-europe-west1.db.astra.datastax.com:29042:c89ed09d-8b2d-41bc-86ad-ad709d3da36a has been marked down
+2022-07-27 23:20:37,092 : cassandra.cluster : WARNING : [control connection] Error connecting to c8a85932-3577-4d27-96ba-1b148c0ae79d-europe-west1.db.astra.datastax.com:29042:a837fe38-9fd5-49a6-958e-7f7ca71ae890:
+Traceback (most recent call last):
+  File "cassandra/cluster.py", line 3522, in cassandra.cluster.ControlConnection._reconnect_internal
+  File "cassandra/cluster.py", line 3599, in cassandra.cluster.ControlConnection._try_connect
+  File "cassandra/cluster.py", line 3596, in cassandra.cluster.ControlConnection._try_connect
+  File "cassandra/cluster.py", line 3698, in cassandra.cluster.ControlConnection._refresh_schema
+  File "cassandra/metadata.py", line 142, in cassandra.metadata.Metadata.refresh
+  File "cassandra/metadata.py", line 165, in cassandra.metadata.Metadata._rebuild_all
+  File "cassandra/metadata.py", line 2872, in get_all_keyspaces
+  File "cassandra/metadata.py", line 2522, in get_all_keyspaces
+  File "cassandra/metadata.py", line 2031, in get_all_keyspaces
+  File "cassandra/metadata.py", line 2811, in cassandra.metadata.SchemaParserV4._query_all
+  File "cassandra/connection.py", line 1073, in cassandra.connection.Connection.wait_for_responses
+  File "cassandra/connection.py", line 1071, in cassandra.connection.Connection.wait_for_responses
+  File "cassandra/connection.py", line 1572, in cassandra.connection.ResponseWaiter.deliver
+cassandra.OperationTimedOut: errors=None, last_host=None
+2022-07-27 23:20:37,092 : cassandra.cluster : WARNING : [control connection] Error connecting to c8a85932-3577-4d27-96ba-1b148c0ae79d-europe-west1.db.astra.datastax.com:29042:c89ed09d-8b2d-41bc-86ad-ad709d3da36a:
+Traceback (most recent call last):
+  File "cassandra/cluster.py", line 3522, in cassandra.cluster.ControlConnection._reconnect_internal
+  File "cassandra/cluster.py", line 3599, in cassandra.cluster.ControlConnection._try_connect
+  File "cassandra/cluster.py", line 3580, in cassandra.cluster.ControlConnection._try_connect
+  File "cassandra/connection.py", line 1073, in cassandra.connection.Connection.wait_for_responses
+  File "cassandra/connection.py", line 1071, in cassandra.connection.Connection.wait_for_responses
+  File "cassandra/connection.py", line 1572, in cassandra.connection.ResponseWaiter.deliver
+cassandra.OperationTimedOut: errors=None, last_host=None
+2022-07-27 23:20:38,920 : cassandra.pool : WARNING : Error attempting to reconnect to c8a85932-3577-4d27-96ba-1b148c0ae79d-europe-west1.db.astra.datastax.com:29042:a837fe38-9fd5-49a6-958e-7f7ca71ae890, scheduling retry in 1.74 seconds: errors=Timed out creating connection (5 seconds), last_host=None
+2022-07-27 23:21:07,099 : cassandra.connection : WARNING : Heartbeat failed for connection (140463015813920) to c8a85932-3577-4d27-96ba-1b148c0ae79d-europe-west1.db.astra.datastax.com:29042:c89ed09d-8b2d-41bc-86ad-ad709d3da36a
+2022-07-27 23:21:07,106 : cassandra.connection : WARNING : Heartbeat failed for connection (140463292314048) to c8a85932-3577-4d27-96ba-1b148c0ae79d-europe-west1.db.astra.datastax.com:29042:c266ef58-d206-4b55-b00d-0d2dc2058015
+2022-07-27 23:21:07,106 : cassandra.connection : WARNING : Heartbeat failed for connection (140463293880528) to c8a85932-3577-4d27-96ba-1b148c0ae79d-europe-west1.db.astra.datastax.com:29042:c89ed09d-8b2d-41bc-86ad-ad709d3da36a
+2022-07-27 23:21:07,106 : cassandra.connection : WARNING : Heartbeat failed for connection (140462745593664) to c8a85932-3577-4d27-96ba-1b148c0ae79d-europe-west1.db.astra.datastax.com:29042:a837fe38-9fd5-49a6-958e-7f7ca71ae890
+2022-07-27 23:21:07,107 : cassandra.connection : WARNING : Heartbeat failed for connection (140462745586704) to c8a85932-3577-4d27-96ba-1b148c0ae79d-europe-west1.db.astra.datastax.com:29042:a837fe38-9fd5-49a6-958e-7f7ca71ae890
+2022-07-27 23:21:07,108 : cassandra.cluster : WARNING : Host c8a85932-3577-4d27-96ba-1b148c0ae79d-europe-west1.db.astra.datastax.com:29042:c266ef58-d206-4b55-b00d-0d2dc2058015 has been marked down
+2022-07-27 23:21:07,108 : cassandra.cluster : WARNING : Host c8a85932-3577-4d27-96ba-1b148c0ae79d-europe-west1.db.astra.datastax.com:29042:c89ed09d-8b2d-41bc-86ad-ad709d3da36a has been marked down
+2022-07-27 23:21:07,110 : cassandra.cluster : WARNING : Host c8a85932-3577-4d27-96ba-1b148c0ae79d-europe-west1.db.astra.datastax.com:29042:a837fe38-9fd5-49a6-958e-7f7ca71ae890 has been marked down
+2022-07-27 23:21:07,421 : cassandra.connection : WARNING : Heartbeat failed for connection (140463014733056) to c8a85932-3577-4d27-96ba-1b148c0ae79d-europe-west1.db.astra.datastax.com:29042:a837fe38-9fd5-49a6-958e-7f7ca71ae890
+2022-07-27 23:21:16,250 : cassandra.connection : WARNING : Heartbeat failed for connection (140463293093568) to c8a85932-3577-4d27-96ba-1b148c0ae79d-europe-west1.db.astra.datastax.com:29042:c266ef58-d206-4b55-b00d-0d2dc2058015
+2022-07-27 23:21:17,314 : cassandra.connection : WARNING : Heartbeat failed for connection (140462745592992) to c8a85932-3577-4d27-96ba-1b148c0ae79d-europe-west1.db.astra.datastax.com:29042:c266ef58-d206-4b55-b00d-0d2dc2058015
+2022-07-27 23:21:22,222 : cassandra.connection : WARNING : Heartbeat failed for connection (140463015380640) to c8a85932-3577-4d27-96ba-1b148c0ae79d-europe-west1.db.astra.datastax.com:29042:c266ef58-d206-4b55-b00d-0d2dc2058015
+2022-07-27 23:21:22,223 : cassandra.connection : WARNING : Heartbeat failed for connection (140463015751744) to c8a85932-3577-4d27-96ba-1b148c0ae79d-europe-west1.db.astra.datastax.com:29042:a837fe38-9fd5-49a6-958e-7f7ca71ae890
+2022-07-27 23:21:22,223 : cassandra.connection : WARNING : Heartbeat failed for connection (140463015753472) to c8a85932-3577-4d27-96ba-1b148c0ae79d-europe-west1.db.astra.datastax.com:29042:c89ed09d-8b2d-41bc-86ad-ad709d3da36a
+2022-07-27 23:21:22,223 : cassandra.connection : WARNING : Heartbeat failed for connection (140463016263984) to c8a85932-3577-4d27-96ba-1b148c0ae79d-europe-west1.db.astra.datastax.com:29042:c266ef58-d206-4b55-b00d-0d2dc2058015
+2022-07-27 23:21:22,225 : cassandra.cluster : WARNING : Host c8a85932-3577-4d27-96ba-1b148c0ae79d-europe-west1.db.astra.datastax.com:29042:c266ef58-d206-4b55-b00d-0d2dc2058015 has been marked down
+2022-07-27 23:21:22,227 : cassandra.cluster : WARNING : Host c8a85932-3577-4d27-96ba-1b148c0ae79d-europe-west1.db.astra.datastax.com:29042:a837fe38-9fd5-49a6-958e-7f7ca71ae890 has been marked down
+2022-07-27 23:21:22,228 : cassandra.cluster : WARNING : Host c8a85932-3577-4d27-96ba-1b148c0ae79d-europe-west1.db.astra.datastax.com:29042:c89ed09d-8b2d-41bc-86ad-ad709d3da36a has been marked down
+2022-07-27 23:21:26,614 : cassandra.connection : WARNING : Heartbeat failed for connection (140463014046224) to c8a85932-3577-4d27-96ba-1b148c0ae79d-europe-west1.db.astra.datastax.com:29042:a837fe38-9fd5-49a6-958e-7f7ca71ae890
+2022-07-27 23:21:40,609 : database.py : WARNING : The connection has not been established yet. Creating the connection by calling connect_db()...
+2022-07-27 23:23:02,527 : database.py : ERROR : Error in updating column names: 
+ Exact Error: 
+Error from server: code=2200 [Invalid query] message="Cannot rename non PRIMARY KEY column name"
+Traceback (most recent call last):
+  File "/Users/adityaanuragdash/PycharmProjects/Flipkart_Review_Scrapping/database.py", line 288, in alter_table_column_names
+    self.session.execute(query)
+  File "cassandra/cluster.py", line 2618, in cassandra.cluster.Session.execute
+  File "cassandra/cluster.py", line 4894, in cassandra.cluster.ResponseFuture.result
+cassandra.InvalidRequest: Error from server: code=2200 [Invalid query] message="Cannot rename non PRIMARY KEY column name"
+2022-07-27 23:30:34,380 : database.py : WARNING : The connection has not been established yet. Creating the connection by calling connect_db()...
+2022-07-27 23:32:12,525 : database.py : ERROR : Error in adding new columns : 
+ Exact Error: 
+name 'up_col' is not defined
+Traceback (most recent call last):
+  File "/Users/adityaanuragdash/PycharmProjects/Flipkart_Review_Scrapping/database.py", line 305, in alter_table_add_column
+    for i in range(len(up_col)):
+NameError: name 'up_col' is not defined
+2022-07-27 23:32:42,157 : database.py : WARNING : The connection has not been established yet. Creating the connection by calling connect_db()...
+2022-07-27 23:41:36,698 : database.py : WARNING : The connection has not been established yet. Creating the connection by calling connect_db()...
+2022-07-27 23:42:38,891 : database.py : ERROR : Error in Dropping columns : 
+ Exact Error: 
+<Error from server: code=2000 [Syntax error in CQL query] message="line 1:37 mismatched input 'o' expecting EOF (...TABLE reviews.new_table DROP o [o]...)">
+Traceback (most recent call last):
+  File "/Users/adityaanuragdash/PycharmProjects/Flipkart_Review_Scrapping/database.py", line 327, in alter_table_drop_column
+    self.session.execute(query)
+  File "cassandra/cluster.py", line 2618, in cassandra.cluster.Session.execute
+  File "cassandra/cluster.py", line 4894, in cassandra.cluster.ResponseFuture.result
+cassandra.protocol.SyntaxException: <Error from server: code=2000 [Syntax error in CQL query] message="line 1:37 mismatched input 'o' expecting EOF (...TABLE reviews.new_table DROP o [o]...)">
+2022-07-27 23:47:10,244 : database.py : WARNING : The connection has not been established yet. Creating the connection by calling connect_db()...
+2022-07-27 23:47:22,977 : database.py : ERROR : Error in Dropping columns : 
+ Exact Error: 
+Error from server: code=2200 [Invalid query] message="Column o was not found in table '"reviews".new_table'"
+Traceback (most recent call last):
+  File "/Users/adityaanuragdash/PycharmProjects/Flipkart_Review_Scrapping/database.py", line 330, in alter_table_drop_column
+    self.session.execute(query)
+  File "cassandra/cluster.py", line 2618, in cassandra.cluster.Session.execute
+  File "cassandra/cluster.py", line 4894, in cassandra.cluster.ResponseFuture.result
+cassandra.InvalidRequest: Error from server: code=2200 [Invalid query] message="Column o was not found in table '"reviews".new_table'"
+2022-07-27 23:48:30,309 : database.py : WARNING : The connection has not been established yet. Creating the connection by calling connect_db()...

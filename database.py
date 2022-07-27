@@ -269,4 +269,66 @@ class cassandra_db:
 
         except Exception as e:
             logs.log_error("Error in updating the table: ", str(e))
-            raise Exception("Error in updating the table: ", str(e))
+            raise Exception("Error in updating the table: \n", str(e))
+
+    def alter_table_column_names(self, up_col):
+        """
+        Function to update the column names of the table. Can only rename the primary key column names. Columns which are not primary key cannot be renamed via CQL.
+        :param up_col: dictionary containing updated names of the columns in the format {'old_col_name':'new_col_name'}
+        :return: None
+        """
+        try:
+            self.check_null_connection()
+            self.check_null_keyspace()
+            self.check_null_table()
+            qr1 = "ALTER TABLE {}.{} RENAME ".format(self.keyspace, self.table)
+            for i in range(len(up_col)):
+                query = qr1 + str(list(up_col.keys())[i]) + " TO " + str(list(up_col.values())[i]) + ";"
+                self.session.execute(query)
+            logs.log_info("Column names of the table {} updated".format(self.table))
+        except Exception as e:
+            logs.log_error("Error in updating column names: ", str(e))
+            raise Exception("Error in updating the column names \n: ", str(e))
+
+    def alter_table_add_column(self, add_col):
+        """
+        Function to add the supplied column
+        :param add_col: dictionary containing new column names and thier type in the format {'new_col_name':'new_col_type'}
+        :return: None
+        """
+        try:
+            self.check_null_connection()
+            self.check_null_keyspace()
+            self.check_null_table()
+            qr1 = "ALTER TABLE {}.{} ADD ".format(self.keyspace, self.table)
+            for i in range(len(add_col)):
+                query = qr1 + str(list(add_col.keys())[i]) + " " + str(list(add_col.values())[i]) + ";"
+                self.session.execute(query)
+            logs.log_info("New Column(s) added to the table {}".format(self.table))
+        except Exception as e:
+            logs.log_error("Error in adding new columns : ", str(e))
+            raise Exception("Error in adding new columns \n: ", str(e))
+
+    def alter_table_drop_column(self, col_name):
+        """
+        Function to drop columns.
+        :param col_name: list of column names to be droped
+        :return: None
+        """
+        try:
+            self.check_null_connection()
+            self.check_null_keyspace()
+            self.check_null_table()
+            qr1 = "ALTER TABLE {}.{} DROP ".format(self.keyspace, self.table)
+            if type(col_name) == str:
+                query = qr1 + str(col_name) + ";"
+                self.session.execute(query)
+            else:
+                for i in range(len(col_name)):
+                    query = qr1 + str(col_name[i]) + ";"
+                    print(query)
+                    self.session.execute(query)
+            logs.log_info("Dropped Column(s) from the table {}".format(self.table))
+        except Exception as e:
+            logs.log_error("Error in Dropping columns : ", str(e))
+            raise Exception("Error in Dropping columns \n: ", str(e))
