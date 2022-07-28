@@ -256,14 +256,18 @@ class cassandra_db:
             self.check_null_connection()
             self.check_null_keyspace()
             self.check_null_table()
+            if type(uid) != list:
+                uid = [uid]
             l = len(uid)
             for i in range(l):
                 query = "UPDATE {}.{} SET ".format(self.keyspace, self.table)
                 update = ""
                 for j in range(len(values[i].keys())):
-                    dval = ("'" + str(list(values[i].values())[j]) + "'") if (type(list(values[i].values())[j]) == str) else (str(list(values[i].values())[j]))
+                    dval = ("'" + str(list(values[i].values())[j]) + "'") if (
+                            type(list(values[i].values())[j]) == str) else (str(list(values[i].values())[j]))
                     update = update + str(list(values[i].keys())[j]) + "= " + dval + ", "
-                query = query + update[:-2] + " WHERE {} = {};".format(primary_key, uid[i])
+                query = query + update[:-2] + " WHERE {} = ".format(primary_key)
+                query = query + (("'" + uid[i] + "'") if type(uid[i]) == str else str(uid[i])) + ';'
                 self.session.execute(query)
             logs.log_info("Updated the table {}".format(self.table))
 
@@ -326,9 +330,63 @@ class cassandra_db:
             else:
                 for i in range(len(col_name)):
                     query = qr1 + str(col_name[i]) + ";"
-                    print(query)
                     self.session.execute(query)
             logs.log_info("Dropped Column(s) from the table {}".format(self.table))
         except Exception as e:
             logs.log_error("Error in Dropping columns : ", str(e))
             raise Exception("Error in Dropping columns \n: ", str(e))
+
+    def delete_rows(self, uid, primary_key):
+        """
+        Function to delete records of the given id values.
+        :param uid: list containing ids of the records deleted
+        :param primary_key: column name which is the id of the table (primary key)
+        :return: None
+        """
+        try:
+            self.check_null_connection()
+            self.check_null_keyspace()
+            self.check_null_table()
+            qr1 = "DELETE FROM {}.{} WHERE {} = ".format(self.keyspace, self.table, primary_key)
+            if type(uid) != list:
+                query = qr1 + (("'" + uid + "'") if type(uid) == str else str(uid))
+                self.session.execute(query)
+            else:
+                for i in range(len(uid)):
+                    query = qr1 + (("'" + uid[i] + "'") if type(uid[i]) == str else str(uid[i]))
+                    self.session.execute(query)
+            logs.log_info("Row(s) deleted from tabel {}".format(self.table))
+            return
+        except Exception as e:
+            logs.log_error("Error in deleting rows : ", str(e))
+            raise Exception("Error in deleting rows \n: ", str(e))
+
+    def delete_data(self, uid, attributes, primary_key):
+        """
+        Function to delete the data from the given attributes of the selected records based on their primary key
+        :param uid: values of the primary keys from where data needs to be deleted in list format
+        :param attributes: list of column names from where data needs to be deleted
+        :param primary_key: column name which is the id of the table (primary key)
+        :return: None
+        """
+        try:
+            self.check_null_connection()
+            self.check_null_keyspace()
+            self.check_null_table()
+            if type(attributes) != list:
+                attributes = [attributes]
+                if type(uid) != list:
+                    uid = [uid]
+            l = len(uid)
+            for i in range(l):
+                qr1 = "DELETE "
+                att = ""
+                for j in range(len(attributes)):
+                    att = att + str(attributes[j]) + ", "
+                qr2 = qr1 + att[:-2] + " FROM {}.{} WHERE {} = ".format(self.keyspace, self.table, primary_key)
+                query = qr2 + (("'" + uid[i] + "'") if type(uid[i]) == str else str(uid[i]))
+                self.session.execute(query)
+            logs.log_info("Deleted some data points from the table {}".format(self.table))
+        except Exception as e:
+            logs.log_error("Error in deleting the given data points from the table: ", str(e))
+            raise Exception("Error in deleting the given data points from the table: \n", str(e))

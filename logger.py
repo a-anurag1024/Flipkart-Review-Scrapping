@@ -17,7 +17,7 @@ class my_logs:
         """
         logger = logging.getLogger(self.handler)
         formatting = "%(asctime)s : %(name)s : %(levelname)s : %(message)s"
-        logging.basicConfig(filename='logs.log', level=self.level, format=formatting)
+        logging.basicConfig(filename='logs.log', level=logging.DEBUG, format=formatting)
         return logger
 
     def log_info(self, mes):
