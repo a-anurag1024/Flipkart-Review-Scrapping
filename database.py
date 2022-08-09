@@ -107,6 +107,18 @@ class cassandra_db:
             logs.log_error("Error in finding the list of tables.", str(e))
             raise Exception("Error in finding the list of tables.\n" + str(e))
 
+    def is_table_present(self, tname):
+        """
+        Function to check if the given table is present or not in the selected keyspace.
+        :param tname: table name to be searched
+        :return: Boolean value corresponding to if table is present or not
+        """
+        l = self.list_tables()
+        if tname in l:
+            return True
+        else:
+            return False
+
     def drop_table(self, tname):
         """
         Function to drop the given table from the database.

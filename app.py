@@ -2,8 +2,7 @@ from logger import my_logs
 from flask import Flask, render_template, request, jsonify, Response, url_for, redirect
 from flask_cors import CORS, cross_origin
 from Flipkart_Scrapper import Scrapper_Class
-from webdriver_manager.firefox import GeckoDriverManager
-from selenium.webdriver.firefox.service import Service as FirefoxService
+
 
 rows = {}
 collection_name = None
@@ -30,7 +29,7 @@ def index():
             expected_review = 10
             logs.log_info("Taken dummy values for searchString and expected_review")
         try:
-            scrapper = Scrapper_Class(FirefoxService(GeckoDriverManager().install()))
+            scrapper = Scrapper_Class()
             scrapper.open_url("https://www.flipkart.com/")
             logs.log_info('The Flipkart home page has been hit.')
             scrapper.login_popup_cross()
