@@ -2,12 +2,12 @@ from selenium import webdriver
 from selenium.webdriver.common.by import By
 from webdriver_manager.firefox import GeckoDriverManager
 from selenium.webdriver.firefox.service import Service as FirefoxService
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
 import pandas as pd
 
 from logger import my_logs
 from page_locators import locator
+
+from database import cassandra_db
 
 logs = my_logs('Flipkart_Scrapper.py')
 
@@ -223,7 +223,7 @@ class Scrapper_Class:
             while counter < n_com:
                 page_ele = self.driver.find_elements(By.CLASS_NAME, value=loc.loc_comment_table())
                 page_count = 4  # number of comments collected in the given comment page
-                while len(page_ele)-1 > page_count and counter < n_com:
+                while len(page_ele) - 1 > page_count and counter < n_com:
                     vals = []
                     loc_ele = page_ele[page_count]
                     # to find the comment heading
@@ -314,3 +314,161 @@ class Scrapper_Class:
         except Exception as e:
             logs.log_error('Error in obtaining product comments from the review page.', str(e))
             raise Exception('Error in obtaining product comments from the review page.\n' + str(e))
+
+    def establish_searched_products_table(self):
+        """
+        Function to establish the table containing all the details of the products searched.
+        :return: None
+        """
+        try:
+            cdb = cassandra_db()
+            cdb.connect_db()
+            cdb.establish_keyspace('reviews')   # name of the keyspace is reviews
+            t = cdb.list_tables()
+            if 'products_searched' not in t:
+                columns = "search_id int PRIMARY KEY, search_string text, product_name text, product_tag text, product_price float, product_MRP float, no_of_ratings int, no_of_reviews int, overall_rating float, no_of_5stars int, no_of_4stars int, no_of_3stars int, no_of_2stars int, no_of_1star int"
+                table_name = 'products_searched'
+                cdb.establish_table(table_name, columns)
+                logs.log_warning("Products_searched table was not present in the keyspace. Initialized the products_searched table.")
+                return
+            else:
+                logs.log_info("Products_searched table found in the keyspace.")
+        except Exception as e:
+            logs.log_error('Error in searched product table in the database.', str(e))
+            raise Exception('Error in searched product table in the database.\n' + str(e))
+
+    def get_last_search_id(self):
+        """
+        Function to get the last search id in the products_searched table
+        :return: search_id of the last search
+        """
+        try:
+            dbc = cassandra_db()
+            self.establish_searched_products_table()
+            query = "select search_id, search_string from reviews.products_searched; "
+            a = dbc.read_table(query)
+            max_a = a.loc[a.search_id == a['search_id'].max()]
+            last_search_id = max_a['search_id']
+            return last_search_id
+        except Exception as e:
+            logs.log_error('Error in finding the last search id in the products_searched table in the database.', str(e))
+            raise Exception('Error in finding the last search id in the products_searched table in the database.\n' + str(e))
+
+    def check_db(self, search_str):
+        """
+        Function to check if the result for the search string already exists in the last 10 search results.
+        :param search_str: the search string asked for searching the product
+        :return: search_id of the table containing the comments (if exists), False otherwise.
+        """
+        try:
+            dbc = cassandra_db()
+            self.establish_searched_products_table()
+            query = "select search_id from reviews.products_searched where search_string = '{}' ALLOW FIlTERING".format(
+                search_str.lower())
+            search_ids = dbc.read_table(query)
+            if len(search_ids) != 0:
+                ret_ids = []
+                if len(search_ids) == 1:
+                    table_name = "search_no_{}".format(search_ids)
+                    if dbc.is_table_present(table_name):
+                        return search_ids
+                    else:
+                        return False
+                else:
+                    for i in range(len(search_ids)):
+                        table_name = "search_no_{}".format(search_ids[i])
+                        if dbc.is_table_present(table_name):
+                            ret_ids.append(i)
+                    if len(ret_ids) != 0:
+                        return ret_ids
+                    else:
+                        return False
+            else:
+                return False
+        except Exception as e:
+            logs.log_error('Error in searching for the given search string in the database.', str(e))
+            raise Exception('Error in searching for the given search string in the database.\n' + str(e))
+
+    def search_and_get_product_links(self, search_str):
+        """
+        Function to search and obtain the product links.
+        :param search_str: search string
+        :return: list of all the product links found
+        """
+        self.open_url('https://www.flipkart.com')
+        self.login_popup_cross()
+        self.product_search(search_str)
+        links = self.get_product_links()
+        return links
+
+    def create_new_search_table(self, search_str, no_comments, skip=0):
+        """
+        Function to create a new search result table in the database.
+        :param search_str: string to be searched
+        :param no_comments: number of comments to be scrapped
+        :param skip: number of products in the search result to be skipped (scrapped by earlier instances)
+        :return: search_ids of the new table(s) created
+        """
+        try:
+            cdb = cassandra_db()
+            cdb.connect_db()
+            l = cdb.list_tables()
+            nos = []
+            for i in l:
+                if i[:10] == 'search_no_':
+                    nos.append(int(i[10:]))
+            sno = max(nos) + 1
+            comments_counter = 0
+            plinks = self.search_and_get_product_links(search_str)
+            i = skip
+            while comments_counter < no_comments:
+                p_details = self.fetch_product_details(plinks[i])
+                values = {'search_id': sno, 'search_string': search_str, 'product_name': p_details[0],
+                          'product_tag': p_details[1], 'product_price': p_details[2], 'product_MRP': p_details[3],
+                          'no_of_ratings': p_details[4], 'no_of_reviews': p_details[5], 'overall_rating': p_details[6],
+                          'no_of_5stars': p_details[7][0], 'no_of_4stars': p_details[7][1], 'no_of_3stars': p_details[7][2],
+                          'no_of_2stars': p_details[7][3], 'no_of_1star': p_details[7][4]}
+                cdb.table = 'products_searched'
+                cdb.add_single_data(values)
+                tname = "search_no_{}".format(sno)
+                cols = "comment_no int PRIMARY KEY, title text, comment text, rating float, month text, location text, likes int, dislikes int"
+                cdb.establish_table(tname, cols)
+                df = self.fetch_product_comments(plinks[i], no_comments - comments_counter, r_page=False)
+                df['comment_no'] = df.index
+                cdb.add_batch_data(df)
+                comments_counter += len(df)
+                sno += 1
+                i += 1
+        except Exception as e:
+            logs.log_error('Error in creating a new search table.', str(e))
+            raise Exception('Error in creating a new search table.\n' + str(e))
+
+    def get_comments(self, search_str, no_comments):
+        """
+        Function to get the product comment details of the searched product in the database
+        :param search_str: the search string asked for searching the product
+        :param no_comments: number of comments to be searched
+        :return list of dataframes from different scrapped products of the searched string
+        """
+        try:
+            cdb = cassandra_db()
+            cdb.connect_db()
+            # to check existing records
+            search_ids = self.check_db(search_str)
+            no_exits_com = 0
+            dfs = []
+            if search_ids:
+                for i in search_ids:
+                    query = "select * from reviews.search_no_{};".format(i)
+                    dfs.append(cdb.read_table(query))
+                    no_exits_com += len(dfs[-1])
+            # case-1 : when no extra data scrapping is required
+            if no_exits_com < no_comments:
+                return dfs
+            # case-2 : when existing data is not enough
+            else:
+                dfs.append(self.create_new_search_table(search_str, no_comments - no_exits_com, len(dfs)))
+                return dfs
+        except Exception as e:
+            logs.log_error('Error in returning the search results to the App.', str(e))
+            raise Exception('Error in returning the search results to the App.\n' + str(e))
