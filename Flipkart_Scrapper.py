@@ -2,6 +2,8 @@ from selenium import webdriver
 from selenium.webdriver.common.by import By
 from webdriver_manager.firefox import GeckoDriverManager
 from selenium.webdriver.firefox.service import Service as FirefoxService
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
 import pandas as pd
 
 from logger import my_logs
@@ -21,6 +23,8 @@ class Scrapper_Class:
         try:
             self.driver = webdriver.Firefox(service=FirefoxService(GeckoDriverManager().install()))
             logs.log_info("Firefox web driver has been set up.")
+            self.cdb = cassandra_db()
+            self.cdb.connect_db()
         except Exception as e:
             logs.log_error("Error occurred in initializing the webdriver.", str(e))
             raise Exception("Error occurred in initializing the webdriver. \n" + str(e))
@@ -130,7 +134,7 @@ class Scrapper_Class:
                 return 0
             loc_ele = loc_ele.find_element(By.TAG_NAME, value='a')
             self.open_url(loc_ele.get_attribute('href'))
-            loc_ele = self.driver.find_element(By.CLASS_NAME, value=loc.loc_product_review_page())
+            loc_ele = WebDriverWait(self.driver, 10).until(EC.presence_of_element_located((By.CLASS_NAME, loc.loc_product_review_page())))
             try:
                 self.open_url(loc_ele.get_attribute('href'))
             except:
@@ -171,8 +175,8 @@ class Scrapper_Class:
                 return [pname, ptag, pprice, pmrp, no_rate, no_reviews, agg_rate, ratings]
             try:  # For page-type of 1st kind
                 # finding the product's number of ratings
-                loc_ele = self.driver.find_element(By.XPATH,
-                                                   value=loc.loc_num_rate_rev_t1()[0])
+                loc_ele = WebDriverWait(self.driver, 10).until(EC.presence_of_element_located((By.XPATH,
+                                                   loc.loc_num_rate_rev_t1()[0])))
                 no_rate = int(loc_ele.text[:-9].replace(",", ""))
                 # finding the product's number of reviews
                 loc_ele = self.driver.find_element(By.XPATH,
@@ -221,14 +225,16 @@ class Scrapper_Class:
             loc = locator()
             df = pd.DataFrame(columns=['title', 'comment', 'rating', 'month', 'location', 'likes', 'dislikes'])
             while counter < n_com:
-                page_ele = self.driver.find_elements(By.CLASS_NAME, value=loc.loc_comment_table())
                 page_count = 4  # number of comments collected in the given comment page
+                page_ele = WebDriverWait(self.driver, 10).until(
+                    EC.presence_of_all_elements_located((By.CLASS_NAME, loc.loc_comment_table())))
                 while len(page_ele) - 1 > page_count and counter < n_com:
                     vals = []
                     loc_ele = page_ele[page_count]
                     # to find the comment heading
                     try:
-                        vals.append(loc_ele.find_element(By.CLASS_NAME, value=loc.loc_comment_head_t1()).text)
+                        head_ele = WebDriverWait(self.driver, 5).until(EC.presence_of_element_located((By.CLASS_NAME, loc.loc_comment_head_t1())))
+                        vals.append(head_ele.text)
                     except:
                         vals.append(None)
                     # to find the comment text
@@ -269,25 +275,25 @@ class Scrapper_Class:
                     # to find the comment likes and dislikes
                     try:
                         vals.append(
-                            loc_ele.find_element(By.XPATH, value=loc.loc_comment_with_photo_like_dislike_t1()[0]).text)
+                            int(loc_ele.find_element(By.XPATH, value=loc.loc_comment_with_photo_like_dislike_t1()[0]).text))
                         vals.append(
-                            loc_ele.find_element(By.XPATH, value=loc.loc_comment_with_photo_like_dislike_t1()[1]).text)
+                            int(loc_ele.find_element(By.XPATH, value=loc.loc_comment_with_photo_like_dislike_t1()[1]).text))
                     except:
                         try:
                             vals.append(
-                                loc_ele.find_element(By.XPATH,
-                                                     value=loc.loc_comment_without_photo_like_dislike_t1()[0]).text)
+                                int(loc_ele.find_element(By.XPATH,
+                                                     value=loc.loc_comment_without_photo_like_dislike_t1()[0]).text))
                             vals.append(
-                                loc_ele.find_element(By.XPATH,
-                                                     value=loc.loc_comment_without_photo_like_dislike_t1()[1]).text)
+                                int(loc_ele.find_element(By.XPATH,
+                                                     value=loc.loc_comment_without_photo_like_dislike_t1()[1]).text))
                         except:
                             try:
                                 vals.append(
-                                    loc_ele.find_elements(By.CLASS_NAME, value=loc.loc_comment_like_dislike_t2())[
-                                        0].text)
+                                    int(loc_ele.find_elements(By.CLASS_NAME, value=loc.loc_comment_like_dislike_t2())[
+                                        0].text))
                                 vals.append(
-                                    loc_ele.find_elements(By.CLASS_NAME, value=loc.loc_comment_like_dislike_t2())[
-                                        1].text)
+                                    int(loc_ele.find_elements(By.CLASS_NAME, value=loc.loc_comment_like_dislike_t2())[
+                                        1].text))
                             except:
                                 vals.append(None)
                                 vals.append(None)
@@ -297,7 +303,6 @@ class Scrapper_Class:
                     print(vals)
                     print(page_count, counter)
                 try:
-                    print('hit new page option-1')
                     self.driver.find_elements(By.CLASS_NAME, value=loc.loc_next_page_button_t1())[-1].click()
                 except:
                     try:
@@ -321,18 +326,18 @@ class Scrapper_Class:
         :return: None
         """
         try:
-            cdb = cassandra_db()
-            cdb.connect_db()
-            cdb.establish_keyspace('reviews')   # name of the keyspace is reviews
-            t = cdb.list_tables()
+            self.cdb.establish_keyspace('reviews')   # name of the keyspace is reviews
+            t = self.cdb.list_tables()
             if 'products_searched' not in t:
                 columns = "search_id int PRIMARY KEY, search_string text, product_name text, product_tag text, product_price float, product_MRP float, no_of_ratings int, no_of_reviews int, overall_rating float, no_of_5stars int, no_of_4stars int, no_of_3stars int, no_of_2stars int, no_of_1star int"
                 table_name = 'products_searched'
-                cdb.establish_table(table_name, columns)
+                self.cdb.establish_table(table_name, columns)
                 logs.log_warning("Products_searched table was not present in the keyspace. Initialized the products_searched table.")
                 return
             else:
                 logs.log_info("Products_searched table found in the keyspace.")
+                self.cdb.table = 'reviews'
+                return
         except Exception as e:
             logs.log_error('Error in searched product table in the database.', str(e))
             raise Exception('Error in searched product table in the database.\n' + str(e))
@@ -343,10 +348,9 @@ class Scrapper_Class:
         :return: search_id of the last search
         """
         try:
-            dbc = cassandra_db()
             self.establish_searched_products_table()
             query = "select search_id, search_string from reviews.products_searched; "
-            a = dbc.read_table(query)
+            a = self.cdb.read_table(query)
             max_a = a.loc[a.search_id == a['search_id'].max()]
             last_search_id = max_a['search_id']
             return last_search_id
@@ -361,24 +365,24 @@ class Scrapper_Class:
         :return: search_id of the table containing the comments (if exists), False otherwise.
         """
         try:
-            dbc = cassandra_db()
             self.establish_searched_products_table()
             query = "select search_id from reviews.products_searched where search_string = '{}' ALLOW FIlTERING".format(
                 search_str.lower())
-            search_ids = dbc.read_table(query)
+            search_ids = self.cdb.read_table(query)
             if len(search_ids) != 0:
                 ret_ids = []
                 if len(search_ids) == 1:
-                    table_name = "search_no_{}".format(search_ids)
-                    if dbc.is_table_present(table_name):
-                        return search_ids
+                    table_name = "search_no_{}".format(int(search_ids.search_id))
+                    if self.cdb.is_table_present(table_name):
+                        return int(search_ids.search_id)
                     else:
                         return False
                 else:
+                    # checking if the searched results are still present in the db or have been deleted
                     for i in range(len(search_ids)):
-                        table_name = "search_no_{}".format(search_ids[i])
-                        if dbc.is_table_present(table_name):
-                            ret_ids.append(i)
+                        table_name = "search_no_{}".format(search_ids.search_id[i])
+                        if self.cdb.is_table_present(table_name):
+                            ret_ids.append(search_ids.search_id[i])
                     if len(ret_ids) != 0:
                         return ret_ids
                     else:
@@ -403,39 +407,50 @@ class Scrapper_Class:
 
     def create_new_search_table(self, search_str, no_comments, skip=0):
         """
-        Function to create a new search result table in the database.
+        Function to create a new search result table(s) in the database and delete the oldest search table(s).
         :param search_str: string to be searched
         :param no_comments: number of comments to be scrapped
         :param skip: number of products in the search result to be skipped (scrapped by earlier instances)
         :return: search_ids of the new table(s) created
         """
         try:
-            cdb = cassandra_db()
-            cdb.connect_db()
-            l = cdb.list_tables()
+            self.cdb.establish_keyspace('reviews')
+            l = self.cdb.list_tables()
             nos = []
             for i in l:
                 if i[:10] == 'search_no_':
                     nos.append(int(i[10:]))
-            sno = max(nos) + 1
+            sno = max(nos) + 1 if len(nos) != 0 else 1
             comments_counter = 0
             plinks = self.search_and_get_product_links(search_str)
             i = skip
             while comments_counter < no_comments:
                 p_details = self.fetch_product_details(plinks[i])
                 values = {'search_id': sno, 'search_string': search_str, 'product_name': p_details[0],
-                          'product_tag': p_details[1], 'product_price': p_details[2], 'product_MRP': p_details[3],
+                          'product_tag': p_details[1], 'product_price': p_details[2], 'product_mrp': p_details[3],
                           'no_of_ratings': p_details[4], 'no_of_reviews': p_details[5], 'overall_rating': p_details[6],
                           'no_of_5stars': p_details[7][0], 'no_of_4stars': p_details[7][1], 'no_of_3stars': p_details[7][2],
                           'no_of_2stars': p_details[7][3], 'no_of_1star': p_details[7][4]}
-                cdb.table = 'products_searched'
-                cdb.add_single_data(values)
+                self.cdb.table = 'products_searched'
+                self.cdb.add_single_data(values)
+                # to delete the oldest search table
+                l = self.cdb.list_tables()
+                if len(l) > 10:
+                    nos = []
+                    for j in l:
+                        if j[:10] == 'search_no_':
+                            nos.append(int(j[10:]))
+                    nos.sort()
+                    self.cdb.drop_table('search_no_{}'.format(nos[0]))
+                # to insert the product comments in the new table
                 tname = "search_no_{}".format(sno)
                 cols = "comment_no int PRIMARY KEY, title text, comment text, rating float, month text, location text, likes int, dislikes int"
-                cdb.establish_table(tname, cols)
+                self.cdb.establish_table(tname, cols)
                 df = self.fetch_product_comments(plinks[i], no_comments - comments_counter, r_page=False)
                 df['comment_no'] = df.index
-                cdb.add_batch_data(df)
+                print(df.columns)
+                self.cdb.table = tname
+                self.cdb.add_batch_data(df)
                 comments_counter += len(df)
                 sno += 1
                 i += 1
@@ -445,14 +460,12 @@ class Scrapper_Class:
 
     def get_comments(self, search_str, no_comments):
         """
-        Function to get the product comment details of the searched product in the database
+        Function to get the product comments and details of the searched product in the database
         :param search_str: the search string asked for searching the product
         :param no_comments: number of comments to be searched
         :return list of dataframes from different scrapped products of the searched string
         """
         try:
-            cdb = cassandra_db()
-            cdb.connect_db()
             # to check existing records
             search_ids = self.check_db(search_str)
             no_exits_com = 0
@@ -460,15 +473,14 @@ class Scrapper_Class:
             if search_ids:
                 for i in search_ids:
                     query = "select * from reviews.search_no_{};".format(i)
-                    dfs.append(cdb.read_table(query))
+                    dfs.append(self.cdb.read_table(query))
                     no_exits_com += len(dfs[-1])
             # case-1 : when no extra data scrapping is required
-            if no_exits_com < no_comments:
-                return dfs
+                if no_exits_com < no_comments:
+                    return dfs
             # case-2 : when existing data is not enough
-            else:
-                dfs.append(self.create_new_search_table(search_str, no_comments - no_exits_com, len(dfs)))
-                return dfs
+            dfs.append(self.create_new_search_table(search_str, no_comments - no_exits_com, len(dfs)))
+            return dfs
         except Exception as e:
             logs.log_error('Error in returning the search results to the App.', str(e))
             raise Exception('Error in returning the search results to the App.\n' + str(e))
