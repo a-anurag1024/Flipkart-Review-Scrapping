@@ -1,40 +1,38 @@
-import Flipkart_Scrapper
-from logger import my_logs
 from flask import Flask, render_template, request, jsonify, Response, url_for, redirect
 from flask_cors import CORS, cross_origin
 from Flipkart_Scrapper import Scrapper_Class
 
-rows = {}
-collection_name = None
+from logger import my_logs
+logs = my_logs('app.py')
 
-logs = my_logs('apps.py')
-
-free_status = True
-db_name = 'Flipkart_Review_Scrapping'
-
-app = Flask(__name__)  # to initialize the flask app
+app = Flask(__name__, template_folder="templates")
 
 
-@app.route('/', method=['Post', 'Get'])
+@app.route('/', methods=['GET', 'POST'])
 @cross_origin()
-def index():
+def home():
+    return render_template("index.html")
+
+
+@app.route('/comments', methods=['GET', 'POST'])
+@cross_origin()
+def comments():
     if request.method == 'POST':
         try:
-            searchString = request.form['content'].replace(" ", "")  # getting the search query from the html form
-            expected_review = int(request.form['expected_review'])  # getting the number of reviews from the html form
-            logs.log_info("Obtained the query details from the user")
+            search_str = request.form['search_str']
+            no_of_comments = request.form['no_of_searches']
+            scr = Scrapper_Class()
+            dfs = scr.get_comments(search_str, no_of_comments)
+            df = scr.add_dfs(dfs)                                   # # # # # NEED TO DEFINE THIS FUNCTION
+            comments_obt = df.to_json(orient='records')
+            return render_template("comments.html", search_str=search_str, no_comments=no_of_comments, reviews=comments_obt)
         except Exception as e:
-            logs.log_error("Error in obtaining the input from the user:", str(e))
-            searchString = 'macbookair'
-            expected_review = 10
-            logs.log_info("Taken dummy values for searchString and expected_review")
-        try:
-            scrapper = Flipkart_Scrapper.Scrapper_Class()
+            logs.log_error('Error in building the comments page.: ', str(e))
+            raise Exception('Error in building the comments page.: \n'+str(e))
+    else:
+        return redirect(url_for("home"))
 
-        except Exception as e:
-            logs.log_error(
-                "Error in finding the search result either in the Database or saving a new instance to the database:",
-                str(e))
-            raise Exception(
-                'Error in finding the search result either in the Database or saving a new instance to the database.\n' + str(
-                    e))
+
+if __name__ == '__main__':
+    app.run()
+
