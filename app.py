@@ -13,7 +13,8 @@ app = Flask(__name__, template_folder="templates")
 @app.route('/', methods=['GET', 'POST'])
 @cross_origin()
 def home():
-    return render_template("index.html")
+    return render_template("index.html", analytics={'total_searches': 2, 'most_searched': 'hero', 'highest_reviewed': 'hero',
+                                                      'most_successful': 'hero', 'least_successful': 'me'})
 
 
 @app.route('/comments', methods=['GET', 'POST'])

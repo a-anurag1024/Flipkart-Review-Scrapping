@@ -5,10 +5,10 @@
 </head>
 <body>
 
-<h1>Flipkart Review Scrapping and analytics</h1>
+<h1>Flipkart Review Scrapping and Analytics</h1>
 <h2>Made by Aditya Anurag Dash</h2>
-<h3>My Github website:-
-<a href = "https://github.com/a-anurag1024">a-anurag1024</a>
+<h3>Github Repo:-
+<a href = "https://github.com/a-anurag1024/Flipkart-Review-Scrapping">Flipkart-Review-Scrapping</a>
 </h3>
 
 <hr>
@@ -21,6 +21,79 @@
     <input type="text" id="no_of_searches" name = "no_of_searches"><br><br>
     <input type="submit" value="Submit">
 </form>
+
+<p>Please note that it takes a lot of time in the backend to scrap the web for the products and comments as the webdriver emulates
+    the visitation of each of the product and comments page. So, it is requested to
+    wait for some time (2-3 minutes) before the result page is shown. Although the wait time is highly dependent on the latency
+    between the Heruko server (where this web app is hosted) and the Flipkart webpage, you can have a look at the following
+    examples to get an idea of the wait time.
+</p>
+<table>
+    <tr>
+        <th>Search string</th>
+        <th>Number of comments</th>
+        <th>Time taken</th>
+    </tr>
+    <tbody>
+    <tr>
+        <td></td>
+        <td></td>
+        <td></td>
+    </tr>
+    </tbody>
+</table>
+
+<hr>
+
+<h1>Some basic analytics on the products that have been searched till now</h1>
+
+<p>Product attributes collected in this project:- Product category, Product name, Product MRP, Product price (at the time of
+scrapping), overall rating, number of reviews, number of ratings, number of ratings in each individual rate [5,4,3,2,1]</p>
+
+<p>It goes without saying that generalisation can't be made based on this data yet as the number of searches is quite small.
+But once the dataset grows, some trends can be seen.</p>
+
+<hr>
+
+<p>Total number of searches:- {{analytics['total_searches']}}</p>
+<p>Most searched product category:- {{analytics['most_searched']}}</p>
+<p>Highest reviewed product category:-{{analytics['highest_reviewed']}}</p>
+<p>Most successful product category:- {{analytics['most_successful']}}</p>
+<p>Least successful product category (among the categories searched):- {{analytics['least_successful']}}</p>
+
+<p> It is usually observed that the amongst the five rating levels, the most selected rating levels are usually the
+    5 star or 1 star. This might be linked to human tendency to have a black and white (either the product is good or bad) view on
+    the product. The ratings in between (2,3 and 4 stars) reflects nuance in the process of reviewing. Another thing to note
+    on this is that while the large number of one and five star ratings may indicate to lack of nuance, but it might
+    very well also indicate to product being actually absolutely disliked/liked by the customers.
+</p>
+<p>
+    We can check the trends on the amount of black and white thinking vs nuance thinking in the customers
+    by making a rudimentry measure that roughly acknowledges the factors mentioned above. We can define the measure as:-
+</p>
+<p>Amount of black-white thinking = [1/mod(n5-n1)]*[1/mod(n2+n3+n4)]*[total_ratings^2]</p>
+<p>The following graph shows the values of the above metric for different product categories. </p>
+
+
+
+
+
+
+
+<p>
+    Given a larger set of stratified
+data, we can get a hold about the amount of nuance in the customer base of a particular product type. This information along with
+    other features can turn
+out to be vital for understanding the type of customer base for that particular product type and launching products accordingly.
+For example, a more nuanced customer base may mean that introduction of experimental features in the product may get some
+good customer feedback to further develop that feature (this is just a hypothesis which needs to be validated by conducting proper
+    experiments)</p>
+<hr>
+<p>Flipkart has turned out to be one of the most popular marketplace especially in India.
+    There can be a very large number of applications of this basic project in order to understand the market and it's
+    requirements. It can either be used to check the trends in the popularity of a particular product or a product class, or it can
+    also be used to validate market trends in the evolution of a product feature and it's reception by the public.
+</p>
 
 </body>
 </html>
