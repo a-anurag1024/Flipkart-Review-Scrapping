@@ -164,8 +164,11 @@ class Scrapper_Class:
             loc_ele = self.driver.find_element(By.CLASS_NAME, value=loc.loc_product_price())
             pprice = float(loc_ele.text[1:].replace(',', ''))
             # product mrp
-            loc_ele = self.driver.find_element(By.CLASS_NAME, value=loc.loc_product_MRP())
-            pmrp = float(loc_ele.text[1:].replace(',', ''))
+            try:
+                loc_ele = self.driver.find_element(By.CLASS_NAME, value=loc.loc_product_MRP())
+                pmrp = float(loc_ele.text[1:].replace(',', ''))
+            except:
+                pmrp = pprice
             flag = self.get_review_page(plink)
             if flag == 0:
                 no_rate = None
@@ -300,16 +303,12 @@ class Scrapper_Class:
                     df.loc[len(df)] = vals
                     counter += 1
                     page_count += 1
-                    print(vals)
-                    print(page_count, counter)
                 try:
                     self.driver.find_elements(By.CLASS_NAME, value=loc.loc_next_page_button_t1())[-1].click()
                 except:
                     try:
-                        print('hit new page option-2')
                         self.driver.find_elements(By.CLASS_NAME, value=loc.loc_next_page_button_t2())[-1].click()
                     except:
-                        print('hit new page option-3')
                         logs.log_warning(
                             "No new pages of comments for the product. Need to extract {} product comments from other products".format(
                                 n_com - counter))
@@ -374,7 +373,8 @@ class Scrapper_Class:
                 if len(search_ids) == 1:
                     table_name = "search_no_{}".format(int(search_ids.search_id))
                     if self.cdb.is_table_present(table_name):
-                        return int(search_ids.search_id)
+                        ret_ids.append(int(search_ids.search_id))
+                        return ret_ids
                     else:
                         return False
                 else:
@@ -411,7 +411,7 @@ class Scrapper_Class:
         :param search_str: string to be searched
         :param no_comments: number of comments to be scrapped
         :param skip: number of products in the search result to be skipped (scrapped by earlier instances)
-        :return: search_ids of the new table(s) created
+        :return: product data and comments data as two dataframes
         """
         try:
             self.cdb.establish_keyspace('reviews')
@@ -424,6 +424,11 @@ class Scrapper_Class:
             comments_counter = 0
             plinks = self.search_and_get_product_links(search_str)
             i = skip
+            #products = pd.DataFrame(columns=['search_id', 'search_string', 'product_name', 'product_tag', 'product_price'
+            #                                 'product_mrp', 'no_of_ratings', 'no_of_reviews', 'overall_rating',
+            #                                'no_of_5stars', 'no_of_4stars', 'no_of_3stars', 'no_of_2stars', 'no_of_1star'])
+            dfs = []
+            products = []
             while comments_counter < no_comments:
                 p_details = self.fetch_product_details(plinks[i])
                 values = {'search_id': sno, 'search_string': search_str, 'product_name': p_details[0],
@@ -433,6 +438,7 @@ class Scrapper_Class:
                           'no_of_2stars': p_details[7][3], 'no_of_1star': p_details[7][4]}
                 self.cdb.table = 'products_searched'
                 self.cdb.add_single_data(values)
+                products.append(pd.DataFrame.from_records([values]))
                 # to delete the oldest search table
                 l = self.cdb.list_tables()
                 if len(l) > 10:
@@ -448,12 +454,15 @@ class Scrapper_Class:
                 self.cdb.establish_table(tname, cols)
                 df = self.fetch_product_comments(plinks[i], no_comments - comments_counter, r_page=False)
                 df['comment_no'] = df.index
-                print(df.columns)
+                dfs.append(df)
                 self.cdb.table = tname
                 self.cdb.add_batch_data(df)
                 comments_counter += len(df)
                 sno += 1
                 i += 1
+            comment_data = pd.concat(dfs)
+            product_data = pd.concat(products)
+            return product_data, comment_data
         except Exception as e:
             logs.log_error('Error in creating a new search table.', str(e))
             raise Exception('Error in creating a new search table.\n' + str(e))
@@ -463,24 +472,45 @@ class Scrapper_Class:
         Function to get the product comments and details of the searched product in the database
         :param search_str: the search string asked for searching the product
         :param no_comments: number of comments to be searched
-        :return list of dataframes from different scrapped products of the searched string
+        :return None (all data saved as csv files)
         """
         try:
             # to check existing records
             search_ids = self.check_db(search_str)
             no_exits_com = 0
             dfs = []
+            products =[]
             if search_ids:
                 for i in search_ids:
                     query = "select * from reviews.search_no_{};".format(i)
                     dfs.append(self.cdb.read_table(query))
                     no_exits_com += len(dfs[-1])
+                    query = "select * from reviews.products_searched where search_id = {};".format(i)
+                    products.append(self.cdb.read_table(query))
             # case-1 : when no extra data scrapping is required
-                if no_exits_com < no_comments:
-                    return dfs
+                if no_exits_com >= no_comments:
+                    comment_data = pd.concat(dfs).iloc[:no_comments]
+                    product_data = pd.concat(products)
+                    comment_data.to_csv('comments.csv')
+                    product_data.to_csv('searched_products.csv')
+                    return
             # case-2 : when existing data is not enough
-            dfs.append(self.create_new_search_table(search_str, no_comments - no_exits_com, len(dfs)))
-            return dfs
+            product, df = self.create_new_search_table(search_str, no_comments - no_exits_com, len(dfs))
+            dfs.append(df)
+            comment_data = pd.concat(dfs)
+            products.append(product)
+            product_data = pd.concat(products)
+            comment_data.to_csv('comments.csv')
+            product_data.to_csv('searched_products.csv')
+            return
         except Exception as e:
             logs.log_error('Error in returning the search results to the App.', str(e))
             raise Exception('Error in returning the search results to the App.\n' + str(e))
+
+    def close_driver(self):
+        """
+        Function to close the web-driver
+        :return: None
+        """
+        self.driver.close()
+        return

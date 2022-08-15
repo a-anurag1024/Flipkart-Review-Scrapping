@@ -5,5 +5,90 @@
         The Results page for {{ search_str }} with number of comments = {{ no_comments }}
     </h1>
 </head>
+<p>Search another product :- <a href="/">Search Page</a></p>
+<hr>
+<p>URL to the csv file for products searches:- <a href="/download_searched_products" download>Searched_products</a></p>
+<hr>
+<p>URL to the csv file for scrapped comments:- <a href="/download_comments" download>Comments</a></p>
+<h2>
+    The products which were searched for the comments are:-
+</h2>
+
+<hr>
+
+<table>
+    <tr>
+        <th>Product Name</th>
+        <th>Product Tag</th>
+        <th>Product Price</th>
+        <th>Product MRP</th>
+        <th>Overall Rating</th>
+        <th>Number of 5 stars</th>
+        <th>Number of 4 stars</th>
+        <th>Number of 3 stars</th>
+        <th>Number of 2 stars</th>
+        <th>Number of 1 stars</th>
+    </tr>
+
+    <tbody>
+
+        {% if products is not none %}
+        {% for product in products %}
+    <tr>
+        <td>{{product['product_name']}}</td>
+        <td>{{product['product_tag']}}</td>
+        <td>{{product['product_price']}}</td>
+        <td>{{product['product_mrp']}}</td>
+        <td>{{product['overall_rating']}}</td>
+        <td>{{product['no_of_5stars']}}</td>
+        <td>{{product['no_of_4stars']}}</td>
+        <td>{{product['no_of_3stars']}}</td>
+        <td>{{product['no_of_2stars']}}</td>
+        <td>{{product['no_of_1star']}}</td>
+    </tr>
+
+        {% endfor %}
+        {% endif %}
+
+    </tbody>
+</table>
+
+<hr>
+
+<h2>
+    The comments scrapped from the above products' page(s) are:-
+</h2>
+
+<table>
+    <tr>
+        <th>Comment title</th>
+        <th>Comment body</th>
+        <th>rating</th>
+        <th>When commented?</th>
+        <th>Location of the commenter</th>
+        <th>No. of comment likes</th>
+        <th>No. of comment dislikes</th>
+    </tr>
+
+    <tbody>
+
+    {% if reviews is not none %}
+    {% for review in reviews %}
+    <tr></tr>
+        <td>{{review['title']}}</td>
+        <td>{{review['comment']}}</td>
+        <td>{{review['rating']}}</td>
+        <td>{{review['month']}}</td>
+        <td>{{review['location']}}</td>
+        <td>{{review['likes']}}</td>
+        <td>{{review['dislikes']}}</td>
+    </tr>
+
+    {% endfor %}
+    {% endif %}
+
+    </tbody>
+</table>
+
 
 </html>
