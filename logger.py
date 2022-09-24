@@ -4,7 +4,7 @@ import logging
 class my_logs:
     def __init__(self, handler):
         """ To initialize the log object"""
-        self.level = logging.DEBUG
+        self.level = logging.INFO
         self.message = '{} message'.format(self.level)
         self.err_des = 'No error description available'
         self.handler = handler

@@ -2,6 +2,7 @@ from flask import Flask, render_template, request, jsonify, Response, url_for, r
 from flask_cors import CORS, cross_origin
 import pandas as pd
 from Flipkart_Scrapper import Scrapper_Class
+from product_analysis import product_analytics
 
 from logger import my_logs
 
@@ -13,8 +14,10 @@ app = Flask(__name__, template_folder="templates")
 @app.route('/', methods=['GET', 'POST'])
 @cross_origin()
 def home():
-    return render_template("index.html", analytics={'total_searches': 2, 'most_searched': 'hero', 'highest_reviewed': 'hero',
-                                                      'most_successful': 'hero', 'least_successful': 'me'})
+    pa = product_analytics()
+    total_searches, most_searched, max_rev, max_rated, least_rated, max_discount = pa.product_stats()
+    return render_template("index.html", analytics={'total_searches': str(total_searches), 'most_searched': most_searched, 'highest_reviewed': max_rev,
+                                                    'most_successful': max_rated, 'least_successful': least_rated, 'max_discounted': max_discount})
 
 
 @app.route('/comments', methods=['GET', 'POST'])
@@ -52,6 +55,13 @@ def download_searched_products():
 @cross_origin()
 def download_comments():
     return send_file("comments.csv", as_attachment=True)
+
+
+@app.route('/download_img/<image_name>', methods=['GET', 'POST'])
+@cross_origin()
+def download_img(image_name):
+    path = "plots/" + image_name + ".png"
+    return send_file(path)
 
 
 if __name__ == '__main__':
