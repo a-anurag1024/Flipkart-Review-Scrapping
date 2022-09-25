@@ -63,6 +63,3 @@ def download_img(image_name):
     path = "plots/" + image_name + ".png"
     return send_file(path)
 
-
-if __name__ == '__main__':
-    app.run()
