@@ -138,7 +138,7 @@ class product_analytics:
         """
         try:
             df1 = self.df[['product_tag', 'no_of_5stars', 'no_of_4stars', 'no_of_3stars', 'no_of_2stars', 'no_of_1star']]
-            df1['bnw'] = (1/abs(df1['no_of_5stars']-df1['no_of_1star']))*(1/(df1['no_of_2stars']+df1['no_of_3stars']+df1['no_of_4stars']))*(df1['no_of_5stars']+df1['no_of_2stars']+df1['no_of_3stars']+df1['no_of_4stars']+df1['no_of_1star'])
+            df1['bnw'] = (1/abs(df1['no_of_5stars']-df1['no_of_1star']))*(1/(df1['no_of_2stars']+df1['no_of_3stars']+df1['no_of_4stars']))*(df1['no_of_5stars']+df1['no_of_2stars']+df1['no_of_3stars']+df1['no_of_4stars']+df1['no_of_1star'])**2
             count_prod_cat = df1[['bnw', 'product_tag']].groupby(['product_tag']).mean()
             fig = px.bar(x=count_prod_cat.index, y=count_prod_cat['bnw'],
                          labels=dict(x="Product Categories", y="Average black and white thinking metric"))

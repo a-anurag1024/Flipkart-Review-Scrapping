@@ -352,6 +352,7 @@ class Scrapper_Class:
             a = self.cdb.read_table(query)
             max_a = a.loc[a.search_id == a['search_id'].max()]
             last_search_id = max_a['search_id']
+            self.clear_log(len(a))
             return last_search_id
         except Exception as e:
             logs.log_error('Error in finding the last search id in the products_searched table in the database.', str(e))
@@ -514,3 +515,17 @@ class Scrapper_Class:
         """
         self.driver.close()
         return
+
+    def clear_log(self, length):
+        """
+        Function to clear the logs when number of searches is divisible by 10. This allows to keep the logs only for the last 10 searches.
+        The function is called at get_last_search_id
+        :return: None
+        """
+        if length % 10 == 0:
+            file = open("logs.log",'r+')
+            file.truncate(0)
+            file.close()
+        else:
+            pass
+
