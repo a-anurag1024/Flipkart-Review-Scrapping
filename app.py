@@ -16,8 +16,11 @@ app = Flask(__name__, template_folder="templates")
 def home():
     pa = product_analytics()
     total_searches, most_searched, max_rev, max_rated, least_rated, max_discount = pa.product_stats()
-    return render_template("index.html", analytics={'total_searches': str(total_searches), 'most_searched': most_searched, 'highest_reviewed': max_rev,
-                                                    'most_successful': max_rated, 'least_successful': least_rated, 'max_discounted': max_discount})
+    return render_template("index.html",
+                           analytics={'total_searches': str(total_searches), 'most_searched': most_searched,
+                                      'highest_reviewed': max_rev,
+                                      'most_successful': max_rated, 'least_successful': least_rated,
+                                      'max_discounted': max_discount})
 
 
 @app.route('/comments', methods=['GET', 'POST'])
@@ -63,3 +66,6 @@ def download_img(image_name):
     path = "plots/" + image_name + ".png"
     return send_file(path)
 
+
+if __name__ == "__main__":
+    app.run()
