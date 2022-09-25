@@ -3,6 +3,8 @@ from flask_cors import CORS, cross_origin
 import pandas as pd
 from Flipkart_Scrapper import Scrapper_Class
 from product_analysis import product_analytics
+import sys
+import logging
 
 from logger import my_logs
 
@@ -10,6 +12,8 @@ logs = my_logs('app.py')
 
 app = Flask(__name__, template_folder="templates")
 
+app.logger.addHandler(logging.StreamHandler(sys.stdout))
+app.logger.setLevel(logging.ERROR)
 
 @app.route('/', methods=['GET', 'POST'])
 @cross_origin()
