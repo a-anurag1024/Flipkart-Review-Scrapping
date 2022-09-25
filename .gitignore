@@ -2,5 +2,4 @@ geckodriver.log
 my_cassandra_token.txt
 logs.log
 test_Flipkart_Scrapper.py
-cassandra_credentials.txt
-secure-connect-flipkart-review-scrap.zip
+
