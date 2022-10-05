@@ -20,16 +20,16 @@ This project is related to scrapping of product and customer review data from th
 ## Amount of black and white thinking:-
 It is usually observed that the amongst the five rating levels, the most selected rating levels are usually the 5 star or 1 star. This might be linked to human tendency to have a black and white (either the product is good or bad) view on the product. The ratings in between (2,3 and 4 stars) reflects nuance in the process of reviewing. Another thing to note on this is that while the large number of one and five star ratings may indicate to lack of nuance, but it might very well also indicate to product being actually absolutely disliked/liked by the customers.
 
+We can check the trends on the amount of black and white thinking vs nuance thinking in the customers by making a rudimentry measure that roughly acknowledges the factors mentioned above. We can define the measure as:-
+
+Amount of black-white thinking = [1/mod(n5-n1)]\*[1/mod(n2+n3+n4)]\*[total_ratings^2]
+
 ## High level system design:-
 - **app.py** :- Builds the flask API web-app
 - **database.py** :- establishes the connection with the cassandra database
 - **Flipkart_Scrapper.py** :- establishes the web driver, scraps the required data from the Flipkart website and stores the data in the database
 - **page_locators.py** :- locates the various page elements in the flipkart website
 - **product_analysis.py** :- performs the basic product analysis
-
-We can check the trends on the amount of black and white thinking vs nuance thinking in the customers by making a rudimentry measure that roughly acknowledges the factors mentioned above. We can define the measure as:-
-
-Amount of black-white thinking = [1/mod(n5-n1)]\*[1/mod(n2+n3+n4)]\*[total_ratings^2]
 
 ## Usage:-
 - One can interact with the app directly using the deployed link given above. Note that while using the deployed link one may face server overload as this app is hosted freely at heroku. In such a case, please wait for a while and then enter your enquiry again. Also, note that scrapping is a time taking process. Please have a look at the benchmarks to know about the approximate time required to complete a scrapping request.
